@@ -1,6 +1,6 @@
 # C++ Competitive Local Multiplayer Platformer GAME - BME Prog2 Homework | C++ Kompetitive Helyi Többjátékos Platformer Játék - BME Prog2 Nagyházi
 
-[English(#english) | [Magyar](#magyar)]
+[[English](#english) | [Magyar](#magyar)]
 <a name="english"></a>
 ## English
 A platformer game for two players sharing a keyboard using a custom C++ engine.
