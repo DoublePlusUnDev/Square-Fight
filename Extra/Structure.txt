@@ -1,0 +1,317 @@
+[GameRuntime
+|
+-SDLWindow : SDL_Window* static;
+-SDLRenderer : SDL_Renderer* static;
+-running : bool static;
+-lastFrameCounter : unsinged long long static;
+-currentFrameCounter : unsigned long long static;
+-deltaTime : double static;
+-physicsSimTime : double static;
+-targetFrameRate : double static;
+-targetPhysicsRate : double static;
+-updatables : Updatable*\[\] static;
+-physicsUpdatables : PhysicsUpdatable*\[\] static;
+|
+-loop() : void static;
+-callUpdates() : void static;
+-schedulePhysicsUpdates : void static;
++init(resolutionX : int, resolutionY : int) : void static;
++startGameLoop() : void static;
++quit() : void static;
++getSDLRenderer() : SDL_Renderer* static;
++getDeltaTime() : double static;
++getPhysicsDeltaTime() : double static;
++setTargetFrameRate(targetRate : double) : void static;
++setTargetPhysicsRate(targetRate : double) : void static;
++registerForUpdate(updatable : Updatable*) : void static;
++unregisterForUpdate(updatable : Updatable*) : void static;
++registerForUpdate(updatable : PhysicsUpdatable*) : void static;
++unregisterForUpdate(updatable : PhysicsUpdatable*) : void static;
+]
+[GameRuntime]o-all[Updatable]
+[GameRuntime]o-all[PhysicsUpdatable]
+[GameRuntime]->[InputHandler]
+
+[<abstract> Updatable 
+| 
+-priority : UpdatePriority
+| 
++update() : void virtual;
+]
+
+[<abstract> PhysicsUpdatable 
+| 
+| 
++physicsUpdate() : void virtual; 
++postUpdate() : void virtual;
+]
+
+[Transform
+| 
+-position : Vector2; 
+-scale : Vector2; 
+-parent : Transform*; 
+-children : Transform*\[\]
+| 
+-addChild(child : Transform*) : void;
+-removeChild(child : Transform*) : void;
++move(offset : Vector2) : void;
++getParent() : Transform*;
++changeParent(parent : Transform*);
++countChildren() : size_t;
++getChild(idx : size_t);
++getPosition() : Vector2;
++getScale() : Vector2;
++setPosition(position : Vector2) : void
++setScale(scale : Vector2) : void
++getLocalPosition() : Vector2;
++getLocalScale() : Vector2;
++setLocalPosition(position : Vector2) : void;
++setLocalScale(scale : Vector2) : void;
++findTypeInChildren<T>() : T*\[\];
+]
+
+[Collider 
+|  
+-colliders : Collider* static; 
+-type : ColliderType; 
+-bounciness : double;
+-tags : ColliderTag[];
+| 
+-registerCollider() : void; 
+-unregisterCollider() : void; 
++checkColliders(collider1 : Collider, collider2 : Collider) : bool static;
++checkIntersectionForList(Collider*\[\]) : Collider*\[\] static ;
++checkIntersection() : Collider*[];
++getBounciness() : double;
++hasTag(tag : ColliderTag) : bool;
++getTags() : ColliderTag[];
+]
+[Collider] -:> [Transform]
+
+[Renderer
+|
+-gameHeight : double static;
+-backgroundColor : Color static;
+|
++drawBackground() : void static;
++getGameWidth() : double static;
++getGameHeight() : double static;
++getScreenWidth() : int static;
++getScreenHeight() : int static;
++getAspectRatio() : double static;
++getGameToScreenRatio() : double static;
++getScreenToGameRatio() : double static;
++gameToScreenXPos(gameXPos : double) : int static;
++gameToScreenYPos(gameYPos : double) : int static;
++screenToGameXPos(screenXPos : int) : double static;
++screenToGameYPos(screenYPos : int) : double static;
++setGameHeight(gameHeight : double) : void static;
++setBackgroundColor(color : Color) : void;
++setCameraOffset(Vector2& offset) : void;
++setCameraScale(scale : double) : void;
+]
+[Renderer] -:> [Transform]
+[Renderer] -> [GameRuntime]
+
+[BoxRenderer
+| 
+-color : Color 
+|
++update() : void override
+]
+[BoxRenderer] -:> [Renderer]
+[BoxRenderer] -> [GameRuntime]
+
+[PhysicsObject 
+|
+-maxIntersectionResolveDistance : double static;
+-intersectionResolvePasses : double static;
+-intersectionResolvePasses : size_t static;
+-physicsPasses : size_t static;
+-searchChildrenForColliders : bool static;
+-velocity : Vector2; 
+-acceleration : Vector2;
+-gravity : Vector2;
+-xMaxVelocity : pair<double, double>;
+-yMaxVelocity : pair<double, double>;
+-colliders : Collider*\[\];
+-touchedTags : ColliderTag[];
+| 
+-addTagsFromCollider(collider : Collider*) : void;
+-tryResolveIntersections() : void;
+-tryResolveIntersectionsInDirection(offset : Vector2);
+-tryCheck(offset : Vector2, didIntersect : bool&, maxBounciness : double&, intersects : Collider*\[\]&) : void;
++physicsUpdate() : void override; 
++postUpdate() : void override;
++tryTeleport(position : Vector2) : bool;
++getVelocity() : Vector2; 
++setVelocity(velocity : Vector2) : void; 
++getAcceleration() : Vector2;
++setAcceleration(acceleration : Vector2) : void;
++setGravity(gravity : Vector2) : void;
++setMaxXVelocity(maxXVelocity : pair<double double>) : void;
++setMaxYVelocity(maxYVelocity : pair<double double>) : void;
++checkTag(tag : ColliderTag) : bool;
++clearTags() : void;
+]
+[PhysicsObject] -:> [Transform]
+[PhysicsObject] -:> [PhysicsUpdatable]
+[PhysicsObject] o- 0..*[Collider]
+[PhysicsObject] -> [GameRuntime]
+
+[InputScheme 
+| 
+-jumpKey : SDL_KeyCode; 
+-leftKey : SDL_KeyCode; 
+-dashKey : SDL_KeyCode;
+-rightKey : SDL_KeyCode;
+| 
++getJumpKey() : SDL_KeyCode; 
++getLeftKey() : SDL_KeyCode; 
++getDashKey() : SDL_KeyCode; 
++getRightKey() : SDL_KeyCode;
+]
+
+[InputHandler
+|
+-pressedKeys : SDL_KeyCode\[\] static;
+|
++handleEvent(SDL_Event event) : void static;
++isKeyPressed(key : SDL_KeyCode) : bool static;
+|
+]
+
+[Player
+|  
+-renderer : BoxRenderer;
+-collider : Collider;
+-groundCheck : Collider;
+-headCheck : Collider;
+-inputScheme : InputScheme;
+-jumpSpeed : double;
+-dashSpeed : double;
+-moveAcceleration : double;
+-turnAcceleration : double;
+-maxSpeed : double;
+-maxFallSpeed : double;
+-floatGravity : double;
+-fallGravity : double;
+-groundDrag : double;
+-airDrag : double;
+-hasDied : bool;
+|
+-isGrounded() : bool;
+-checkDeath() : bool;
+-controlPlayer() : void;
+-boundsCheck() : void;
++update() : void override;
++reset(resetPosition : Vector2) : void;
++isDead() : bool;] 
+[Player] -:> [Updatable]
+[Player] -:> [PhysicsObject]
+[Player] +- 3[Collider]
+[Player] +- [InputScheme]
+[Player] +- [BoxRenderer]
+[Player] -> [InputHandler]
+
+[TextHandler 
+|
+-text : string;
+-color : Color;
+-textScale : double;
+-shouldDisplay : bool;
+-font : TTF_Font*;
+-lastScreenHeight : int;
+|
+-renderText() : void;
+-loadFont(fontSize : double) : void;
+-unloadFont() : void;
++update() : void override;
++displayText(text : string, color : Color) : void;
++hideText() : void;
++cleanUp() : void;
+]
+[TextHandler] -:> [Updatable]
+
+[Wall
+|
+-renderer : BoxRenderer;
+-collider : collider;
+|
+]
+[Wall] -:> [Transform]
+[Wall] +- [Collider]
+[Wall] +- [BoxRenderer]
+
+[MapElement 
+|
++position : Vector2; 
++scale : Vector2; 
++color : Color; 
++deadly : bool;
++bounciness : double;
++colliderRatio : Vector2;
+]
+
+[Map 
+|
++mapHeight : double;
++scoreToWin : int;
++player1Position : Vector2; 
++player2Position : Vector2; 
++elements : MapElement[];
+| 
++addElement(position : Vector2, scale : Vector2, color : Color, deadly: bool, bounciness : double, colliderRatio : Vector2);
+]
+[Map] +- 0..* [MapElement]
+
+[MapManager 
+|
+-mapCache : Map\[\]; 
+-mapInstance : Transform*\[\];
+| 
+-initializeMap(map : Map) : void; 
+-discardMap() : void; 
++getMapCount() : size_t;
++getPlayerPosition(playerId : size_t) : void;
++getScoreToWin() : int;
++getMapHeight() : double;
++loadMap(mapId : size_t) : void;
+]
+[MapManager] +- 0..*[Map]
+[MapManager] o- 0..*[Transform]
+[MapManager] -> [Wall]
+
+[GameManager 
+|
+-textHandler : TextHandler;
+-mapManager : MapManager;
+-player1Name : string;
+-player1Color : Color;
+-player2Name : string;
+-player2Color : Color;
+-resetTime : double;
+-player1 : Player;
+-player2 : Player;
+-player1Score : int;
+-player2Score : int;
+-round : int;
+-timeUntilReset : double;
+-shouldReset : bool;
+| 
+-checkForWin() : void;
+-countReset() : void;
+-resetGame() : void;
+-getMapId() : size_t;
+-nextMap() : void;
++getInstance() : GameManager static;
++shutDown() : void;
++update() : void override;
++getMapWidth() : double;
++getMapHeight() : double;
+]
+[GameManager] +- [TextHandler]
+[GameManager] -:> [Updatable]
+[GameManager] +- 2[Player]
+[GameManager] +- [MapManager]
