@@ -20,13 +20,8 @@ add_executable(Square_Fight "${SOURCES}")
 target_include_directories(Square_Fight PUBLIC "${CMAKE_SOURCE_DIR}/include")
 
 # Optional defines
-<<<<<<< HEAD
-#target_compile_definitions(Square_Fight PRIVATE MEMTRACE=1)
-#target_compile_definitions(Square_Fight PRIVATE CPORTA=1)
-=======
 target_compile_definitions(Square_Fight PRIVATE MEMTRACE=1)
 target_compile_definitions(Square_Fight PRIVATE CPORTA=1)
->>>>>>> a04c523 (Idk :3)
 
 # Find SDL3
 find_package(SDL3 REQUIRED)

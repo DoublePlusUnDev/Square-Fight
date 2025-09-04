@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #ifndef CPORTA
 #include "renderer.h"
 
@@ -99,7 +98,6 @@ void Renderer::setCameraScale(const double cameraScale)
 {
     Renderer::cameraScale = cameraScale;
 }
-=======
 #ifndef CPORTA
 #include "renderer.h"
 
@@ -200,5 +198,4 @@ void Renderer::setCameraScale(const double cameraScale)
 {
     Renderer::cameraScale = cameraScale;
 }
->>>>>>> a04c523 (Idk :3)
 #endif // CPORTA
